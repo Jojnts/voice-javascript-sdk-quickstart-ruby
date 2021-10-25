@@ -50,6 +50,17 @@
             <div id="output-volume"></div>
           </div>
         </div>
+        <h2 class="instructions">Conference</h2>
+        <div id="conf-controls" class="hide">
+          <form>
+            <label for="conf-number"
+              >Enter a conference name</label
+            >
+            <input id="conf-number" type="text" placeholder="ID or empty for default" />
+            <button id="button-join" class="conf" type="submit">Join</button>
+          </form>
+          <button id="button-hangup-outgoing-conf">Hang Up</button>
+        </div>
       </section>
       <section class="right-column">
         <h2>Event Log</h2>
@@ -58,7 +69,7 @@
     </main>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script type="text/javascript" src="twilio.min.js"></script>
+    <script type="text/javascript" src="twilio.js"></script>
     <script src="quickstart.js"></script>
   </body>
 </html>

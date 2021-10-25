@@ -20,6 +20,10 @@ button {
   margin-bottom: 10px;
 }
 
+button.conf {
+  background-color: magenta;
+}
+
 label {
   text-align: left;
   font-size: 1.25em;

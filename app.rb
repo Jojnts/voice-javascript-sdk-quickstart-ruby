@@ -5,7 +5,7 @@ require 'sinatra'
 require 'sinatra/json'
 require 'dotenv'
 require 'faker'
-
+require 'pry'
 # Load environment configuration
 Dotenv.load
 
@@ -31,6 +31,7 @@ get '/token' do
   # Required for Voice
   outgoing_application_sid = ENV['TWILIO_TWIML_APP_SID']
 
+
   # Create Voice grant for our token
   grant = Twilio::JWT::AccessToken::VoiceGrant.new
   grant.outgoing_application_sid = outgoing_application_sid
@@ -54,6 +55,34 @@ get '/token' do
   # Generate the token and send to client
   json identity: IDENTITY[0], token: token.to_jwt
 end
+
+post '/conference' do
+  puts "JOJNT: #{params}"
+  conference = params['jojnt_conference']
+
+  # https://www.twilio.com/docs/voice/twiml/conference#
+  response = Twilio::TwiML::VoiceResponse.new
+  response.dial do |dial|
+    dial.conference(
+      conference,
+      wait_url: '', # empty for no music
+      # beep: false,
+      start_conference_on_enter: true,
+      end_conference_on_exit: true,
+    )
+  end
+
+  puts "TWIML"
+  puts response
+  content_type 'text/xml'
+  response.to_s
+end
+
+post '/status' do
+  puts "Twilio called back"
+  puts "PARAMS #{params}"
+end
+
 
 post '/voice' do
   twiml = Twilio::TwiML::VoiceResponse.new do |r|

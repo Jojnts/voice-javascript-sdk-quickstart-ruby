@@ -5,8 +5,11 @@
   const inputVolumeBar = document.getElementById("input-volume");
   const volumeIndicators = document.getElementById("volume-indicators");
   const callButton = document.getElementById("button-call");
+  const joinButton = document.getElementById("button-join");
   const outgoingCallHangupButton = document.getElementById("button-hangup-outgoing");
+  const confHangupButton = document.getElementById("button-hangup-outgoing-conf");
   const callControlsDiv = document.getElementById("call-controls");
+  const confControlsDiv = document.getElementById("conf-controls");
   const audioSelectionDiv = document.getElementById("output-selection");
   const getAudioDevicesButton = document.getElementById("get-devices");
   const logDiv = document.getElementById("log");
@@ -21,22 +24,41 @@
     "button-reject-incoming"
   );
   const phoneNumberInput = document.getElementById("phone-number");
+  const confNumberInput = document.getElementById("conf-number");
   const incomingPhoneNumberEl = document.getElementById("incoming-number");
   const startupButton = document.getElementById("startup-button");
 
   let device;
   let token;
-
   // Event Listeners
 
   callButton.onclick = (e) => {
     e.preventDefault();
     makeOutgoingCall();
   };
+
+  joinButton.onclick = (e) => {
+    e.preventDefault();
+    data = joinConf();
+  }
+
+  async function joinConf() {
+    conference = confNumberInput.value || 'JOJNTS';
+
+    log('Joining conference' + conference);
+
+    call = await device.connect({params: {jojnt_user: 123, jojnt_conference: conference}});
+
+    confHangupButton.onclick = () => {
+      log("Hanging up conference ...");
+        call.disconnect();
+      };
+    return call;
+  }
+
   getAudioDevicesButton.onclick = getAudioDevices;
   speakerDevices.addEventListener("change", updateOutputDevice);
   ringtoneDevices.addEventListener("change", updateRingtoneDevice);
-  
 
   // SETUP STEP 1:
   // Browser client should be started after a user gesture
@@ -72,10 +94,12 @@
       codecPreferences: ["opus", "pcmu"],
     });
 
+
     addDeviceListeners(device);
 
     // Device must be registered in order to receive incoming calls
     device.register();
+    window.device = device;
   }
 
   // SETUP STEP 4:
@@ -84,10 +108,12 @@
     device.on("registered", function () {
       log("Twilio.Device Ready to make and receive calls!");
       callControlsDiv.classList.remove("hide");
+      confControlsDiv.classList.remove("hide");
     });
 
     device.on("error", function (error) {
       log("Twilio.Device Error: " + error.message);
+      callControlsDiv.classList.remove("hide");
     });
 
     device.on("incoming", handleIncomingCall);

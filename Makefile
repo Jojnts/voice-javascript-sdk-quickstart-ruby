@@ -4,4 +4,4 @@ install:
 	bundle install
 
 serve:
-	bundle exec ruby app.rb -o 0.0.0.0
+	RUBYOPT= bundle exec ruby app.rb -o 0.0.0.0

@@ -11,3 +11,5 @@ group :test do
   gem 'rack-test'
   gem 'rspec'
 end
+
+gem "pry", "~> 0.14.1"
