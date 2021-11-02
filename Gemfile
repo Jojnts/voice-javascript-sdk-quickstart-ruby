@@ -13,3 +13,5 @@ group :test do
 end
 
 gem "pry", "~> 0.14.1"
+
+gem "nokogiri", "~> 1.12"
