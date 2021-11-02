@@ -6,6 +6,7 @@ require 'sinatra/json'
 require 'dotenv'
 require 'faker'
 require 'pry'
+require 'nokogiri'
 # Load environment configuration
 Dotenv.load
 
