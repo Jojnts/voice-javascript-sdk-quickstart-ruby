@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"os"
 
-	accesstoken "github.com/Jojnts/twilio-accesstoken-go"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
+	"github.com/twilio/twilio-go/client/jwt"
 )
 
 type Response map[string]interface{}
@@ -83,18 +83,35 @@ func TwilioTokenHandler(w http.ResponseWriter, r *http.Request) {
 	apiSecret := os.Getenv("API_SECRET")
 	outgoingApplicationSid := os.Getenv("TWILIO_TWIML_APP_SID")
 
-	token := accesstoken.New(accountSid, apiKey, apiSecret)
-
 	id := rand.Int()
-	token.Identity = fmt.Sprintf("%d", id)
+	identity := fmt.Sprintf("%d", id)
 
-	grant := accesstoken.NewVoiceGrant(outgoingApplicationSid)
-	token.AddGrant(grant)
+	params := jwt.AccessTokenParams{
+		AccountSid:    accountSid,
+		SigningKeySid: apiKey,
+		Secret:        apiSecret,
+		Identity:      identity,
+	}
 
-	signedJWT, err := token.ToJWT(accesstoken.DefaultAlgorithm)
+	jwtToken := jwt.CreateAccessToken(params)
+	voiceGrant := &jwt.VoiceGrant{
+		Incoming: jwt.Incoming{Allow: false},
+		Outgoing: jwt.Outgoing{
+			ApplicationSid: outgoingApplicationSid,
+		},
+	}
+
+	jwtToken.AddGrant(voiceGrant)
+	token, err := jwtToken.ToJwt()
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte(fmt.Sprintf("Error: %v", err)))
+		return
+	}
+
 	response := &Response{
-		"identity": token.Identity,
-		"token":    signedJWT,
+		"identity": identity,
+		"token":    token,
 	}
 
 	bytes, err := json.Marshal(response)
